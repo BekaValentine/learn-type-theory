@@ -61,3 +61,68 @@
                     the conclusion of the rule first, and will find values for
                     as many parameters as possible before interactively
                     getting more.
+
+
+
+
+== Rule DB
+
+The rules file should probably be easy to parse, so preferable s-expressions
+or something to that effect. The DB will basically be in a special language
+which has one builtin goal construct: `contains?` as a predicate, and two
+builtin types: list and name. The other constructs would be to define the
+syntax and rules. The above example type system would be defined as
+
+  (syntax type
+    (Bool)
+    (* type type)
+    (-> type type))
+
+  (syntax context-judgment
+    (: name type))
+
+  (syntax-list context context-judgment)
+
+  (syntax term
+    (var name)
+    (pair term term)
+    (fst term)
+    (snd term)
+    (lam name term)
+    (app term term))
+
+  (syntax goal
+    (!- context term type))
+
+  (rule var
+    (G x A)
+      (!- G (var x) A)
+        (contains? G (: x A)))
+
+  (rule pair
+    ((G context) (M term) (N term) (A type) (B type))
+      (!- G (pair M N) (* A B))
+        (!- G M A)
+        (!- G N B))
+
+  (rule fst
+    ((G context) (P term) (A type) (B type))
+      (!- G (fst P) A)
+        (!- G P (* A B)))
+
+  (rule snd
+    ((G context) (P term) (A term) (B term))
+      (!- G (snd P) B)
+        (!- G P (* A B)))
+
+  (rule lam
+    ((G context) (x name) (M term) (A type) (B type))
+      (!- G (lam x M) (-> A B))
+        (!- (, G (: x A)) M B))
+
+  (rule app
+    ((G context) (M term) (N term) (A type) (B type))
+      (!- G (app M N) B)
+        (!- G M (-> A B))
+        (!- G N A))
+
