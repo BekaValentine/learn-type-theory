@@ -1,0 +1,63 @@
+== Interactions
+
+`prove <proposition>`
+
+  What it does: Enters an interactive theorem prover to prove the proposition
+                argument.
+
+  Within that mode:
+
+    Always show the goals. E.g.
+
+      Current Goals:
+      p : A*C, q : B*D !- <fst p, fst q> : A*B
+      p : A*C, q : B*D !- <snd p, snd q> : C*D
+   
+ 
+    `rules`
+
+      What it does: Shows the inference rules for the type system.
+
+      Example output:
+
+        var:   forall G x A.
+                 G !- x : A  if..
+                   G contains x : A 
+
+        pair:   forall G M N A B.
+                  G !- <M,N> : A*B  if..
+                    G !- M : A
+                    G !- N : B
+
+        fst:   forall G P A B.
+                 G !- fst P : A  if..
+                   G !- P : A*B
+
+        snd:   forall G P A B.
+                 G !- fst P : A  if..
+                   G !- P : A*B
+
+        lam : forall G x M A B.
+                G !- lam x. M : A -> B  if..
+                  G, x : A !- M : B
+
+        app : forall G M N A B.
+                G !- M N : B  if...
+                  G !- M : A -> B
+                  G !- N : A
+
+    `infer <rule name> <goal id>`
+
+      What it does: Displays the rule and the goal, and then interactively asks
+                    for the parameters to the rule. It till then instantiate
+                    the parameters for the actual rule, and perform a match to
+                    ensure that everything lines up and the rule as
+                    instantiated is applicable. If it's not, it explains the
+                    mismatch, and if it is, it applies the rule.
+
+    `use <rule name> <goal id>`
+
+      What it does: Similar to `infer` except it tries to unify the goal with
+                    the conclusion of the rule first, and will find values for
+                    as many parameters as possible before interactively
+                    getting more.
